@@ -1,0 +1,9 @@
+services:
+  db:
+    ports:
+      - 13307:3306
+    image: mariadb
+    env_file:
+      - .env.docker-compose
+    environment:
+      TZ: Asia/Seoul

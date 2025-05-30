@@ -1,0 +1,15 @@
+spring:
+  jpa:
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+        auto_quote_keyword: true
+        format_sql: true
+    hibernate:
+      ddl-auto: update
+
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    password: ${DB_PASSWORD}
+    username: ${DB_USERNAME}
+    url: jdbc:mariadb://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?characterEncoding=UTF-8&serverTimezone=UTC
