@@ -1,6 +1,7 @@
 package com.numo.portfolio.user.adapter.out.persistence;
 
 import com.numo.portfolio.user.application.port.out.AddUserPort;
+import com.numo.portfolio.user.application.port.out.GetUserQueryPort;
 import com.numo.portfolio.user.domain.User;
 import com.numo.portfolio.user.adapter.out.entity.UserEntity;
 import com.numo.portfolio.user.adapter.out.repository.UserJpaRepository;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class UserPersistenceAdapter implements AddUserPort {
+public class UserPersistenceAdapter implements AddUserPort, GetUserQueryPort {
     private final UserJpaRepository userJpaRepository;
 
     @Override
@@ -27,10 +28,24 @@ public class UserPersistenceAdapter implements AddUserPort {
 
         UserEntity savedUserEntity = userJpaRepository.save(entity);
 
+        return toUser(savedUserEntity);
+    }
+
+    @Override
+    public User getUserBySocialId(String socialId) {
+        UserEntity userEntity = userJpaRepository.findBySocialId(socialId).orElseThrow(
+                () -> new IllegalArgumentException("해당하는 유저가 없습니다.")
+        );
+
+        return toUser(userEntity);
+    }
+
+    private User toUser(UserEntity userEntity) {
         return User.builder()
-                .socialId(savedUserEntity.getSocialId())
-                .nickname(savedUserEntity.getNickname())
-                .id(savedUserEntity.getId())
+                .socialId(userEntity.getSocialId())
+                .nickname(userEntity.getNickname())
+                .id(userEntity.getId())
                 .build();
     }
+
 }

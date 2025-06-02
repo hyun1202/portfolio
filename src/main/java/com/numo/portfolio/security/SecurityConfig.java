@@ -2,6 +2,10 @@ package com.numo.portfolio.security;
 
 import com.numo.portfolio.security.handle.JwtAccessDeniedHandler;
 import com.numo.portfolio.security.handle.JwtAuthenticationEntryPoint;
+import com.numo.portfolio.security.jwt.JwtFilter;
+import com.numo.portfolio.security.jwt.TokenProvider;
+import jakarta.servlet.Filter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -17,7 +22,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+    private final TokenProvider tokenProvider;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
@@ -36,11 +44,17 @@ public class SecurityConfig {
             authorize.anyRequest().permitAll();
         });
 
+        http.addFilterAt(jwtFilter(), BasicAuthenticationFilter.class);
+
         return http.build();
     }
 
+    private Filter jwtFilter() {
+        return new JwtFilter(tokenProvider);
+    }
+
     @Bean
-    public CorsConfigurationSource corsConfigurationSource(){
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         String[] list = {
                 "http://localhost:3000"
