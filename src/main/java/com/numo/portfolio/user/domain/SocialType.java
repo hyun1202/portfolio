@@ -1,4 +1,4 @@
-package com.numo.portfolio.user.adapter.out.entity;
+package com.numo.portfolio.user.domain;
 
 public enum SocialType {
     kakao, naver, google, github

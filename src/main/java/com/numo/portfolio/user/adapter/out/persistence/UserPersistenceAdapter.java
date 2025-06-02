@@ -3,8 +3,8 @@ package com.numo.portfolio.user.adapter.out.persistence;
 import com.numo.portfolio.user.application.port.out.AddUserPort;
 import com.numo.portfolio.user.application.port.out.GetUserQueryPort;
 import com.numo.portfolio.user.domain.User;
-import com.numo.portfolio.user.adapter.out.entity.UserEntity;
-import com.numo.portfolio.user.adapter.out.repository.UserJpaRepository;
+import com.numo.portfolio.user.adapter.out.persistence.entity.UserEntity;
+import com.numo.portfolio.user.adapter.out.persistence.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -45,6 +45,8 @@ public class UserPersistenceAdapter implements AddUserPort, GetUserQueryPort {
                 .socialId(userEntity.getSocialId())
                 .nickname(userEntity.getNickname())
                 .id(userEntity.getId())
+                .createdAt(userEntity.getCreatedAt())
+                .modifiedAt(userEntity.getModifiedAt())
                 .build();
     }
 

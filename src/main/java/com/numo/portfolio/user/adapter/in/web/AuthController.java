@@ -1,7 +1,7 @@
 package com.numo.portfolio.user.adapter.in.web;
 
 import com.numo.portfolio.user.adapter.in.web.dto.AddUserDto;
-import com.numo.portfolio.user.adapter.out.entity.SocialType;
+import com.numo.portfolio.user.domain.SocialType;
 import com.numo.portfolio.user.application.command.AddUserCommand;
 import com.numo.portfolio.user.application.port.in.AddUserUseCase;
 import lombok.RequiredArgsConstructor;

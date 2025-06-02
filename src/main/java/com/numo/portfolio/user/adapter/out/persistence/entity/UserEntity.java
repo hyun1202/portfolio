@@ -1,5 +1,8 @@
-package com.numo.portfolio.user.adapter.out.entity;
+package com.numo.portfolio.user.adapter.out.persistence.entity;
 
+import com.numo.portfolio.comm.persistence.TimestampedEntity;
+import com.numo.portfolio.user.domain.SocialType;
+import com.numo.portfolio.user.domain.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @Table(name = "user")
-public class UserEntity {
+public class UserEntity extends TimestampedEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,5 +29,9 @@ public class UserEntity {
     private String nickname;
     @Column(unique = true)
     private String domain;
+
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
     private LocalDateTime withdrawAt;
 }
