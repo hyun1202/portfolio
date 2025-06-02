@@ -1,0 +1,36 @@
+package com.numo.portfolio.user.adapter.out.persistence;
+
+import com.numo.portfolio.user.application.port.out.AddUserPort;
+import com.numo.portfolio.user.domain.User;
+import com.numo.portfolio.user.adapter.out.entity.UserEntity;
+import com.numo.portfolio.user.adapter.out.repository.UserJpaRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+
+@Repository
+@RequiredArgsConstructor
+public class UserPersistenceAdapter implements AddUserPort {
+    private final UserJpaRepository userJpaRepository;
+
+    @Override
+    public User createUser(User user) {
+        System.out.println(user.getSocialType());
+        if (userJpaRepository.existsBySocialIdAndSocialType(user.getSocialId(), user.getSocialType())) {
+            throw new IllegalArgumentException("이미 가입된 유저입니다.");
+        }
+
+        UserEntity entity = UserEntity.builder()
+                .nickname(user.getNickname())
+                .socialId(user.getSocialId())
+                .socialType(user.getSocialType())
+                .build();
+
+        UserEntity savedUserEntity = userJpaRepository.save(entity);
+
+        return User.builder()
+                .socialId(savedUserEntity.getSocialId())
+                .nickname(savedUserEntity.getNickname())
+                .id(savedUserEntity.getId())
+                .build();
+    }
+}
