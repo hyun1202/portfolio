@@ -22,7 +22,6 @@ import java.util.List;
 public class TokenProvider {
     private static final String AUTHORITIES_KEY = "auth";
     private final long tokenValidityInMillis;
-    private final long refreshTokenValidMillis = 14 * 24 * 60 * 60 * 1000L; // 14 day
     private final Key key;
     private final UserDetailsService userDetailsService;
 
@@ -36,9 +35,9 @@ public class TokenProvider {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public TokenDto createTokenDto(String socialId, List<String> roles) {
+    public String createTokenDto(String socialId, List<String> roles) {
         Date now = new Date();
-        String accessToken = Jwts.builder()
+        return Jwts.builder()
                 .id(socialId)
                 .claims()
                 .add(AUTHORITIES_KEY, roles)
@@ -47,18 +46,6 @@ public class TokenProvider {
                 .expiration(new Date(now.getTime() + tokenValidityInMillis))
                 .signWith(key)
                 .compact();
-
-        String refreshToken = Jwts.builder()
-                .id(socialId)
-                .issuedAt(now)
-                .expiration(new Date(now.getTime() + refreshTokenValidMillis))
-                .signWith(key)
-                .compact();
-
-        return TokenDto.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
     }
 
     public Authentication getAuthentication(String token) {

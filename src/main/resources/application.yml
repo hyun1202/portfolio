@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    include: [oauth2]
   jpa:
     properties:
       hibernate:

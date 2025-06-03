@@ -1,9 +1,14 @@
 package com.numo.portfolio.security;
 
+import com.numo.portfolio.conf.PropertyConfig;
 import com.numo.portfolio.security.handle.JwtAccessDeniedHandler;
 import com.numo.portfolio.security.handle.JwtAuthenticationEntryPoint;
 import com.numo.portfolio.security.jwt.JwtFilter;
 import com.numo.portfolio.security.jwt.TokenProvider;
+import com.numo.portfolio.security.oauth2.CommonLoginFailureHandler;
+import com.numo.portfolio.security.oauth2.CommonLoginSuccessHandler;
+import com.numo.portfolio.security.oauth2.CustomOAuth2UserService;
+import com.numo.portfolio.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -11,9 +16,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -25,6 +34,8 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final TokenProvider tokenProvider;
+    private final PropertyConfig propertyConfig;
+    private final CustomOAuth2UserService CustomOAuth2UserService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -44,13 +55,26 @@ public class SecurityConfig {
             authorize.anyRequest().permitAll();
         });
 
+        http.oauth2Login(configurer -> configurer
+                .authorizationEndpoint(config -> config.authorizationRequestRepository(authorizationRequestRepository()))
+                .redirectionEndpoint(redirectionEndpointConfig -> redirectionEndpointConfig
+                        .baseUri("/oauth2/callback/*")
+                )
+                .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
+                        .userService(CustomOAuth2UserService)
+                )
+                .successHandler(commonLoginSuccessHandler())
+                .failureHandler(commonLoginFailureHandler())
+        );
+
         http.addFilterAt(jwtFilter(), BasicAuthenticationFilter.class);
 
         return http.build();
     }
 
-    private Filter jwtFilter() {
-        return new JwtFilter(tokenProvider);
+    @Bean
+    public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {
+        return new HttpCookieOAuth2AuthorizationRequestRepository();
     }
 
     @Bean
@@ -67,6 +91,18 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
+    }
+
+    private AuthenticationFailureHandler commonLoginFailureHandler() {
+        return new CommonLoginFailureHandler(propertyConfig);
+    }
+
+    private AuthenticationSuccessHandler commonLoginSuccessHandler() {
+        return new CommonLoginSuccessHandler(tokenProvider, propertyConfig);
+    }
+
+    private Filter jwtFilter() {
+        return new JwtFilter(tokenProvider);
     }
 
     private AccessDeniedHandler jwtAccessDeniedHandler() {
