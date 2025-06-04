@@ -15,6 +15,7 @@ abstract class UserMapper {
                 .id(userEntity.getId())
                 .createdAt(userEntity.getCreatedAt())
                 .modifiedAt(userEntity.getModifiedAt())
+                .withdrawAt(userEntity.getWithdrawAt())
                 .role(userEntity.getRole())
                 .build();
     }

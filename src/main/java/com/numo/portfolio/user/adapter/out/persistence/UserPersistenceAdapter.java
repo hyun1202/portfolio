@@ -16,7 +16,6 @@ import static com.numo.portfolio.user.adapter.out.persistence.UserMapper.mapToUs
 public class UserPersistenceAdapter implements AddUserPort,
         GetUserQueryPort,
         OAuth2UserPort,
-        UpdateDomainPort,
         UpdateUserPort
 {
     private final UserJpaRepository userJpaRepository;
@@ -76,6 +75,12 @@ public class UserPersistenceAdapter implements AddUserPort,
         UserEntity userEntity = getUserEntity(userId);
         userEntity.updateUser(nickname);
         return userEntity.getId();
+    }
+
+    @Override
+    public void withdrawUser(Long userId) {
+        UserEntity userEntity = getUserEntity(userId);
+        userEntity.withdrawUser();
     }
 
     private UserEntity getUserEntity(Long userId) {

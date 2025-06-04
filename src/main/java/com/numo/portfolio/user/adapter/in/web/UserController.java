@@ -7,9 +7,8 @@ import com.numo.portfolio.user.adapter.in.web.dto.UserResponse;
 import com.numo.portfolio.user.application.command.GetUserCommand;
 import com.numo.portfolio.user.application.command.UpdateDomainCommand;
 import com.numo.portfolio.user.application.command.UpdateUserCommand;
-import com.numo.portfolio.user.application.port.in.GetUserUseCase;
-import com.numo.portfolio.user.application.port.in.UpdateDomainUseCase;
-import com.numo.portfolio.user.application.port.in.UpdateUserUseCase;
+import com.numo.portfolio.user.application.command.WithdrawUserCommand;
+import com.numo.portfolio.user.application.port.in.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +22,7 @@ public class UserController {
     private final GetUserUseCase getUserUseCase;
     private final UpdateDomainUseCase updateDomainUseCase;
     private final UpdateUserUseCase updateUserUseCase;
+    private final WithdrawUserUsecase withdrawUserUsecase;
 
     @GetMapping
     public ResponseEntity<UserResponse> getUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -56,5 +56,15 @@ public class UserController {
         Long id = updateUserUseCase.updateUser(updateUserCommand);
 
         return ResponseEntity.ok(id);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> withdrawUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        WithdrawUserCommand withdrawUserCommand = new WithdrawUserCommand(
+                userDetails.getUser()
+        );
+        withdrawUserUsecase.withdrawUser(withdrawUserCommand);
+
+        return ResponseEntity.noContent().build();
     }
 }

@@ -33,6 +33,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         User user = saveUserOrUpdate(oAuth2UserInfo, serviceName);
 
+        if (!user.isActivatedUser()) {
+            OAuth2Error oauth2Error = new OAuth2Error("AU02", "탈퇴한 유저입니다.", serviceName);
+            throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+        }
+
         return new UserDetailsImpl(user, attributes);
     }
 

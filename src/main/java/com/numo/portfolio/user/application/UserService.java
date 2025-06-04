@@ -1,17 +1,10 @@
 package com.numo.portfolio.user.application;
 
 import com.numo.portfolio.user.adapter.in.web.dto.UserResponse;
-import com.numo.portfolio.user.application.command.AddUserCommand;
-import com.numo.portfolio.user.application.command.GetUserCommand;
-import com.numo.portfolio.user.application.command.UpdateDomainCommand;
-import com.numo.portfolio.user.application.command.UpdateUserCommand;
-import com.numo.portfolio.user.application.port.in.AddUserUseCase;
-import com.numo.portfolio.user.application.port.in.GetUserUseCase;
-import com.numo.portfolio.user.application.port.in.UpdateDomainUseCase;
-import com.numo.portfolio.user.application.port.in.UpdateUserUseCase;
+import com.numo.portfolio.user.application.command.*;
+import com.numo.portfolio.user.application.port.in.*;
 import com.numo.portfolio.user.application.port.out.AddUserPort;
 import com.numo.portfolio.user.application.port.out.GetUserQueryPort;
-import com.numo.portfolio.user.application.port.out.UpdateDomainPort;
 import com.numo.portfolio.user.application.port.out.UpdateUserPort;
 import com.numo.portfolio.user.domain.User;
 import com.numo.portfolio.user.domain.UserRole;
@@ -25,11 +18,11 @@ public class UserService implements
         AddUserUseCase,
         GetUserUseCase,
         UpdateDomainUseCase,
-        UpdateUserUseCase
+        UpdateUserUseCase,
+        WithdrawUserUsecase
 {
     private final AddUserPort addUserPort;
     private final GetUserQueryPort getUserQueryPort;
-    private final UpdateDomainPort updateDomainPort;
     private final UpdateUserPort updateUserPort;
 
     @Override
@@ -61,7 +54,7 @@ public class UserService implements
     @Transactional
     @Override
     public Long updateUserDomain(UpdateDomainCommand command) {
-        return updateDomainPort.updateDomain(
+        return updateUserPort.updateDomain(
                 command.user().getId(),
                 command.domain()
         );
@@ -74,5 +67,11 @@ public class UserService implements
                 command.user().getId(),
                 command.nickname()
         );
+    }
+
+    @Transactional
+    @Override
+    public void withdrawUser(WithdrawUserCommand command) {
+        updateUserPort.withdrawUser(command.user().getId());
     }
 }

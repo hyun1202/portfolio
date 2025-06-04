@@ -42,4 +42,8 @@ public class UserEntity extends TimestampedEntity {
     public void updateUser(String nickname) {
         this.nickname = nickname;
     }
+
+    public void withdrawUser() {
+        this.withdrawAt = LocalDateTime.now();
+    }
 }
