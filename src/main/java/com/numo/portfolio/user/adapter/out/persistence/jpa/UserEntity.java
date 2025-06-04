@@ -38,4 +38,8 @@ public class UserEntity extends TimestampedEntity {
     public void updateDomain(String domain) {
         this.domain = domain;
     }
+
+    public void updateUser(String nickname) {
+        this.nickname = nickname;
+    }
 }

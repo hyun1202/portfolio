@@ -1,10 +1,7 @@
 package com.numo.portfolio.user.adapter.out.persistence;
 
 import com.numo.portfolio.security.oauth2.info.OAuth2UserInfo;
-import com.numo.portfolio.user.application.port.out.AddUserPort;
-import com.numo.portfolio.user.application.port.out.GetUserQueryPort;
-import com.numo.portfolio.user.application.port.out.OAuth2UserPort;
-import com.numo.portfolio.user.application.port.out.UpdateDomainPort;
+import com.numo.portfolio.user.application.port.out.*;
 import com.numo.portfolio.user.domain.User;
 import com.numo.portfolio.user.adapter.out.persistence.jpa.UserEntity;
 import com.numo.portfolio.user.adapter.out.persistence.jpa.UserJpaRepository;
@@ -16,7 +13,12 @@ import static com.numo.portfolio.user.adapter.out.persistence.UserMapper.mapToUs
 
 @Repository
 @RequiredArgsConstructor
-public class UserPersistenceAdapter implements AddUserPort, GetUserQueryPort, OAuth2UserPort, UpdateDomainPort {
+public class UserPersistenceAdapter implements AddUserPort,
+        GetUserQueryPort,
+        OAuth2UserPort,
+        UpdateDomainPort,
+        UpdateUserPort
+{
     private final UserJpaRepository userJpaRepository;
 
     @Override
@@ -69,10 +71,16 @@ public class UserPersistenceAdapter implements AddUserPort, GetUserQueryPort, OA
         return userEntity.getId();
     }
 
+    @Override
+    public Long updateUser(Long userId, String nickname) {
+        UserEntity userEntity = getUserEntity(userId);
+        userEntity.updateUser(nickname);
+        return userEntity.getId();
+    }
+
     private UserEntity getUserEntity(Long userId) {
-        UserEntity userEntity = userJpaRepository.findById(userId).orElseThrow(
+        return userJpaRepository.findById(userId).orElseThrow(
                 () -> new IllegalArgumentException("해당하는 유저를 찾을 수 없습니다.")
         );
-        return userEntity;
     }
 }

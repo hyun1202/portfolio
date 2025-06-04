@@ -20,3 +20,12 @@ Authorization: Bearer {{accessToken}}
 {
   "domain": "domain1"
 }
+
+### 내 정보 업데이트
+PATCH localhost:8080/api/v1/users
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "nickname": "nickname1"
+}
