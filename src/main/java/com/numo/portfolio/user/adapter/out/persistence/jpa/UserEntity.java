@@ -1,4 +1,4 @@
-package com.numo.portfolio.user.adapter.out.persistence.entity;
+package com.numo.portfolio.user.adapter.out.persistence.jpa;
 
 import com.numo.portfolio.comm.persistence.TimestampedEntity;
 import com.numo.portfolio.user.domain.SocialType;
@@ -34,4 +34,8 @@ public class UserEntity extends TimestampedEntity {
     private UserRole role;
 
     private LocalDateTime withdrawAt;
+
+    public void updateDomain(String domain) {
+        this.domain = domain;
+    }
 }

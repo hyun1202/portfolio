@@ -5,5 +5,5 @@ import com.numo.portfolio.user.application.command.GetUserCommand;
 import com.numo.portfolio.user.domain.User;
 
 public interface GetUserUseCase {
-    UserResponse getUser(GetUserCommand getUserCommand);
+    UserResponse getUser(GetUserCommand command);
 }

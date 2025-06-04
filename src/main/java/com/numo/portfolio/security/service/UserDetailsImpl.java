@@ -71,4 +71,8 @@ public class UserDetailsImpl implements UserDetails, OAuth2User {
     public String getName() {
         return "";
     }
+
+    public User getUser() {
+        return user;
+    }
 }

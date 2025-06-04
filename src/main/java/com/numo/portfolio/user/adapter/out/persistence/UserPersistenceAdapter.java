@@ -4,36 +4,31 @@ import com.numo.portfolio.security.oauth2.info.OAuth2UserInfo;
 import com.numo.portfolio.user.application.port.out.AddUserPort;
 import com.numo.portfolio.user.application.port.out.GetUserQueryPort;
 import com.numo.portfolio.user.application.port.out.OAuth2UserPort;
-import com.numo.portfolio.user.domain.SocialType;
+import com.numo.portfolio.user.application.port.out.UpdateDomainPort;
 import com.numo.portfolio.user.domain.User;
-import com.numo.portfolio.user.adapter.out.persistence.entity.UserEntity;
-import com.numo.portfolio.user.adapter.out.persistence.repository.UserJpaRepository;
-import com.numo.portfolio.user.domain.UserRole;
+import com.numo.portfolio.user.adapter.out.persistence.jpa.UserEntity;
+import com.numo.portfolio.user.adapter.out.persistence.jpa.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+
+import static com.numo.portfolio.user.adapter.out.persistence.UserMapper.mapToUser;
+import static com.numo.portfolio.user.adapter.out.persistence.UserMapper.mapToUserEntity;
 
 @Repository
 @RequiredArgsConstructor
-public class UserPersistenceAdapter implements AddUserPort, GetUserQueryPort, OAuth2UserPort {
+public class UserPersistenceAdapter implements AddUserPort, GetUserQueryPort, OAuth2UserPort, UpdateDomainPort {
     private final UserJpaRepository userJpaRepository;
 
     @Override
     public User createUser(User user) {
-        System.out.println(user.getSocialType());
         if (userJpaRepository.existsBySocialIdAndSocialType(user.getSocialId(), user.getSocialType())) {
             throw new IllegalArgumentException("이미 가입된 유저입니다.");
         }
 
-        UserEntity entity = UserEntity.builder()
-                .nickname(user.getNickname())
-                .socialId(user.getSocialId())
-                .socialType(user.getSocialType())
-                .build();
+        UserEntity userEntity = UserMapper.mapToUserEntity(user);
+        UserEntity savedUserEntity = userJpaRepository.save(userEntity);
 
-        UserEntity savedUserEntity = userJpaRepository.save(entity);
-
-        return toUser(savedUserEntity);
+        return mapToUser(savedUserEntity);
     }
 
     @Override
@@ -42,35 +37,42 @@ public class UserPersistenceAdapter implements AddUserPort, GetUserQueryPort, OA
                 () -> new IllegalArgumentException("해당하는 유저가 없습니다.")
         );
 
-        return toUser(userEntity);
+        return mapToUser(userEntity);
     }
 
-    private User toUser(UserEntity userEntity) {
-        return User.builder()
-                .socialId(userEntity.getSocialId())
-                .socialType(userEntity.getSocialType())
-                .nickname(userEntity.getNickname())
-                .id(userEntity.getId())
-                .createdAt(userEntity.getCreatedAt())
-                .modifiedAt(userEntity.getModifiedAt())
-                .role(userEntity.getRole())
-                .build();
+    @Override
+    public User getUserById(Long userId) {
+        UserEntity userEntity = getUserEntity(userId);
+
+        return mapToUser(userEntity);
     }
 
-    @Transactional
     @Override
     public User getOrSaveUser(OAuth2UserInfo oAuth2UserInfo) {
-        UserEntity oauth2Entity = UserEntity.builder()
-                .nickname(oAuth2UserInfo.nickname())
-                .email(oAuth2UserInfo.email())
-                .socialType(SocialType.getType(oAuth2UserInfo.clientName()))
-                .role(UserRole.ROLE_USER)
-                .socialId(oAuth2UserInfo.socialId())
-                .build();
+        UserEntity oauth2Entity = UserMapper.mapToUserEntity(oAuth2UserInfo);
 
         UserEntity userEntity = userJpaRepository.findBySocialId(oAuth2UserInfo.socialId())
                 .orElseGet(() -> userJpaRepository.save(oauth2Entity));
 
-        return toUser(userEntity);
+        return mapToUser(userEntity);
+    }
+
+    @Override
+    public Long updateDomain(Long userId, String domain) {
+        if (userJpaRepository.existsByDomain(domain)) {
+            throw new IllegalArgumentException("해당하는 도메인은 이미 존재합니다.");
+        }
+
+        UserEntity userEntity = getUserEntity(userId);
+        userEntity.updateDomain(domain);
+
+        return userEntity.getId();
+    }
+
+    private UserEntity getUserEntity(Long userId) {
+        UserEntity userEntity = userJpaRepository.findById(userId).orElseThrow(
+                () -> new IllegalArgumentException("해당하는 유저를 찾을 수 없습니다.")
+        );
+        return userEntity;
     }
 }
