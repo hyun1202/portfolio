@@ -1,8 +1,10 @@
 package com.numo.portfolio.security.oauth2;
 
+import com.numo.portfolio.comm.exception.CustomException;
 import com.numo.portfolio.security.oauth2.info.*;
 import com.numo.portfolio.security.service.UserDetailsImpl;
 import com.numo.portfolio.user.application.port.out.OAuth2UserPort;
+import com.numo.portfolio.user.comm.exception.UserErrorCode;
 import com.numo.portfolio.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -34,7 +36,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         User user = saveUserOrUpdate(oAuth2UserInfo, serviceName);
 
         if (!user.isActivatedUser()) {
-            OAuth2Error oauth2Error = new OAuth2Error("AU02", "탈퇴한 유저입니다.", serviceName);
+            UserErrorCode errorCode = UserErrorCode.WITHDRAW_USER;
+            OAuth2Error oauth2Error = new OAuth2Error(errorCode.name(), errorCode.getMessage(), serviceName);
             throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
         }
 
@@ -45,7 +48,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         try {
             return oAuth2UserPort.getOrSaveUser(oAuth2UserInfo);
         } catch (Exception e) {
-           OAuth2Error oauth2Error = new OAuth2Error("AU01", "사용자 정보 저장에 실패했습니다.", serviceName);
+            UserErrorCode errorCode = UserErrorCode.OAUTH_USER_SAVE_FAILED;
+            OAuth2Error oauth2Error = new OAuth2Error(errorCode.name(), errorCode.getMessage(), serviceName);
            throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), e);
         }
     }
@@ -54,7 +58,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         return switch (serviceName) {
             case "kakao" -> new KaKaoServiceInfo();
             case "google" -> new GoogleServiceInfo();
-            default -> throw new IllegalStateException("Unexpected value: " + serviceName);
+            default -> throw new CustomException(serviceName, UserErrorCode.OAUTH_SERVICE_NOT_SUPPORT);
         };
     }
 

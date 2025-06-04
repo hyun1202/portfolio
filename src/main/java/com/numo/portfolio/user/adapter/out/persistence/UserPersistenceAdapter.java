@@ -1,15 +1,19 @@
 package com.numo.portfolio.user.adapter.out.persistence;
 
+import com.numo.portfolio.comm.exception.CustomException;
 import com.numo.portfolio.security.oauth2.info.OAuth2UserInfo;
-import com.numo.portfolio.user.application.port.out.*;
-import com.numo.portfolio.user.domain.User;
 import com.numo.portfolio.user.adapter.out.persistence.jpa.UserEntity;
 import com.numo.portfolio.user.adapter.out.persistence.jpa.UserJpaRepository;
+import com.numo.portfolio.user.application.port.out.AddUserPort;
+import com.numo.portfolio.user.application.port.out.GetUserQueryPort;
+import com.numo.portfolio.user.application.port.out.OAuth2UserPort;
+import com.numo.portfolio.user.application.port.out.UpdateUserPort;
+import com.numo.portfolio.user.comm.exception.UserErrorCode;
+import com.numo.portfolio.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import static com.numo.portfolio.user.adapter.out.persistence.UserMapper.mapToUser;
-import static com.numo.portfolio.user.adapter.out.persistence.UserMapper.mapToUserEntity;
 
 @Repository
 @RequiredArgsConstructor
@@ -23,7 +27,7 @@ public class UserPersistenceAdapter implements AddUserPort,
     @Override
     public User createUser(User user) {
         if (userJpaRepository.existsBySocialIdAndSocialType(user.getSocialId(), user.getSocialType())) {
-            throw new IllegalArgumentException("이미 가입된 유저입니다.");
+            throw new CustomException(UserErrorCode.EXISTS_USER);
         }
 
         UserEntity userEntity = UserMapper.mapToUserEntity(user);
@@ -35,7 +39,7 @@ public class UserPersistenceAdapter implements AddUserPort,
     @Override
     public User getUserBySocialId(String socialId) {
         UserEntity userEntity = userJpaRepository.findBySocialId(socialId).orElseThrow(
-                () -> new IllegalArgumentException("해당하는 유저가 없습니다.")
+                () -> new CustomException(UserErrorCode.USER_NOT_FOUND.getMessage())
         );
 
         return mapToUser(userEntity);
@@ -61,7 +65,7 @@ public class UserPersistenceAdapter implements AddUserPort,
     @Override
     public Long updateDomain(Long userId, String domain) {
         if (userJpaRepository.existsByDomain(domain)) {
-            throw new IllegalArgumentException("해당하는 도메인은 이미 존재합니다.");
+            throw new CustomException(UserErrorCode.EXISTS_DOMAIN);
         }
 
         UserEntity userEntity = getUserEntity(userId);
@@ -85,7 +89,7 @@ public class UserPersistenceAdapter implements AddUserPort,
 
     private UserEntity getUserEntity(Long userId) {
         return userJpaRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("해당하는 유저를 찾을 수 없습니다.")
+                () -> new CustomException(UserErrorCode.USER_NOT_FOUND.getMessage())
         );
     }
 }

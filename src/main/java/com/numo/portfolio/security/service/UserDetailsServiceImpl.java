@@ -1,7 +1,8 @@
 package com.numo.portfolio.security.service;
 
-import com.numo.portfolio.comm.exception.DataNotFoundException;
+import com.numo.portfolio.comm.exception.CustomException;
 import com.numo.portfolio.user.application.port.out.GetUserQueryPort;
+import com.numo.portfolio.user.comm.exception.UserErrorCode;
 import com.numo.portfolio.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,12 +21,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String socialId) throws UsernameNotFoundException {
         return Optional.ofNullable(getUserQueryPort.getUserBySocialId(socialId))
                 .map(this::createUser)
-                .orElseThrow(() -> new DataNotFoundException("해당하는 유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
     }
 
     private UserDetails createUser(User user) {
         if (!user.isActivatedUser()) {
-            throw new IllegalArgumentException("탈퇴한 계정입니다.");
+            throw new CustomException(UserErrorCode.WITHDRAW_USER);
         }
         return new UserDetailsImpl(user);
     }
