@@ -1,5 +1,7 @@
 package com.numo.portfolio.security.handle;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.numo.portfolio.comm.dto.CommonResult;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,7 +14,6 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-//인가 에러
 @Slf4j
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
@@ -24,6 +25,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setStatus(status.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.getWriter().write("403");
+        CommonResult<Object> res = new CommonResult<>(false, "권한이 없습니다.", null);
+        response.getWriter().write(new ObjectMapper().writeValueAsString(res));
     }
 }

@@ -9,6 +9,8 @@ import com.numo.portfolio.user.domain.UserRole;
 abstract class UserMapper {
     static User mapToUser(UserEntity userEntity) {
         return User.builder()
+                .email(userEntity.getEmail())
+                .domain(userEntity.getDomain())
                 .socialId(userEntity.getSocialId())
                 .socialType(userEntity.getSocialType())
                 .nickname(userEntity.getNickname())

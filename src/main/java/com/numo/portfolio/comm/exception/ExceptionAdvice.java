@@ -18,7 +18,7 @@ public class ExceptionAdvice {
         log.error("exception handler: ", e);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new CommonResult<>(HttpStatus.INTERNAL_SERVER_ERROR, "실패했습니다.", null));
+                .body(new CommonResult<>(false, "실패했습니다.", null));
     }
 
     @ExceptionHandler(CustomException.class)
@@ -27,7 +27,7 @@ public class ExceptionAdvice {
         ErrorCode errorCode = e.getErrorCode();
         return ResponseEntity
                 .status(errorCode.getStatus())
-                .body(new CommonResult<>(errorCode.getStatus(), errorCode.getMessage(), null));
+                .body(new CommonResult<>(false, errorCode.getMessage(), null));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -40,6 +40,6 @@ public class ExceptionAdvice {
         }
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new CommonResult<>(HttpStatus.BAD_REQUEST, builder.toString(), null));
+                .body(new CommonResult<>(false, builder.toString(), null));
     }
 }
