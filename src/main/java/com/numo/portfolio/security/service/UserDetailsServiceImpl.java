@@ -1,5 +1,6 @@
 package com.numo.portfolio.security.service;
 
+import com.numo.portfolio.comm.exception.DataNotFoundException;
 import com.numo.portfolio.user.application.port.out.GetUserQueryPort;
 import com.numo.portfolio.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String socialId) throws UsernameNotFoundException {
         return Optional.ofNullable(getUserQueryPort.getUserBySocialId(socialId))
                 .map(this::createUser)
-                .orElseThrow(() -> new IllegalArgumentException("해당하는 유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new DataNotFoundException("해당하는 유저를 찾을 수 없습니다."));
     }
 
     private UserDetails createUser(User user) {
