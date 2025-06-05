@@ -33,6 +33,10 @@ public class UserEntity extends TimestampedEntity {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    public UserEntity(Long userId) {
+        this.id = userId;
+    }
+
     private LocalDateTime withdrawAt;
 
     public void updateDomain(String domain) {

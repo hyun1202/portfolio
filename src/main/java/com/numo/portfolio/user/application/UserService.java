@@ -19,7 +19,7 @@ public class UserService implements
         GetUserUseCase,
         UpdateDomainUseCase,
         UpdateUserUseCase,
-        WithdrawUserUsecase
+        WithdrawUserUseCase
 {
     private final AddUserPort addUserPort;
     private final GetUserQueryPort getUserQueryPort;
