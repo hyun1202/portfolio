@@ -22,7 +22,7 @@ public class UserController {
     private final GetUserUseCase getUserUseCase;
     private final UpdateDomainUseCase updateDomainUseCase;
     private final UpdateUserUseCase updateUserUseCase;
-    private final WithdrawUserUsecase withdrawUserUsecase;
+    private final WithdrawUserUseCase withdrawUserUsecase;
 
     @GetMapping
     public ResponseEntity<UserResponse> getUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
