@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ExceptionAdvice {
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<CommonResult<?>> handleException(Exception e) {
+    public ResponseEntity<CommonResult<?>> globalException(Exception e) {
         log.error("exception handler: ", e);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -22,7 +22,7 @@ public class ExceptionAdvice {
     }
 
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<CommonResult<?>> handleScheduleException(CustomException e) {
+    public ResponseEntity<CommonResult<?>> customException(CustomException e) {
         log.error("custom exception: ", e);
         ErrorCode errorCode = e.getErrorCode();
         return ResponseEntity
@@ -31,7 +31,7 @@ public class ExceptionAdvice {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<CommonResult<?>> handleException(MethodArgumentNotValidException e){
+    public ResponseEntity<CommonResult<?>> validationException(MethodArgumentNotValidException e){
         BindingResult bindingResult = e.getBindingResult();
         StringBuilder builder = new StringBuilder();
 

@@ -4,6 +4,10 @@ Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-  "categoryName": "카테고리1",
-  "index": 1
+  "categoryName": "카테고리5"
 }
+
+### 카테고리 조회
+GET localhost:8080/api/v1/categories
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}

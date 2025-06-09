@@ -15,7 +15,7 @@ public abstract class CategoryMapper {
 
     public static Category mapToCategory(CategoryEntity entity) {
         return Category.builder()
-                .id(entity.getUser().getId())
+                .id(entity.getId())
                 .index(entity.getIndex())
                 .categoryName(entity.getCategoryName())
                 .build();

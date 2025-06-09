@@ -13,6 +13,7 @@ public class CustomException extends RuntimeException {
 
     public CustomException(ErrorCode errorCode) {
         this(errorCode, null);
+        this.errorCode = errorCode;
     }
 
     public CustomException(String message, ErrorCode errorCode) {
@@ -25,6 +26,7 @@ public class CustomException extends RuntimeException {
 
     public CustomException(String message, ErrorCode errorCode, Throwable e) {
         super("error message: " + message + ", errorCode: " + errorCode.getMessage(), e);
+        this.errorCode = errorCode;
     }
 
     public ErrorCode getErrorCode() {
